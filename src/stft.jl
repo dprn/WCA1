@@ -26,7 +26,7 @@ Base.getindex(m::STFT{T, Frequencies}, etc...) where T = getindex(vals(m), etc..
 # quantities we saved inside the type
 fs(s::STFT) = round(Int, width(s)/(2*first(time(s))))
 noverlap(s::STFT) = round(Int, width(s) - fs(s)*step(time(s)))
-or_length(s::STFT) = (length(time(m))-1)*50 + width(m)
+or_length(m::STFT) = (length(time(m))-1)*50 + width(m)
 
 # We can now define the stft function, which is just a 
 # wrapper around DSP.stft.
