@@ -19,8 +19,8 @@ vals(s::STFT) = s.stft
 width(s::STFT) = s.width
 
 Base.eltype(m::STFT) = eltype(vals(m))
-Base.size(m::STFT{T, Frequencies}, etc...) where T = size(vals(m), etc...)
-Base.getindex(m::STFT{T, Frequencies}, etc...) where T = getindex(vals(m), etc...)
+Base.size(m::STFT, etc...) = size(vals(m), etc...)
+Base.getindex(m::STFT, etc...) = getindex(vals(m), etc...)
 Base.extrema(m::STFT) = extrema(vals(m))
 
 # Functions to recover informations about the stft from the 
