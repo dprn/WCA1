@@ -21,6 +21,7 @@ width(s::STFT) = s.width
 Base.eltype(m::STFT) = eltype(vals(m))
 Base.size(m::STFT{T, Frequencies}, etc...) where T = size(vals(m), etc...)
 Base.getindex(m::STFT{T, Frequencies}, etc...) where T = getindex(vals(m), etc...)
+Base.extrema(m::STFT) = extrema(vals(m))
 
 # Functions to recover informations about the stft from the 
 # quantities we saved inside the type
@@ -37,7 +38,7 @@ function stft(s::AbstractVector{T}, n::Int=length(s)>>3,
                     fs::Real=1, window::Union{Function,AbstractVector,Nothing}=nothing) where T
 
     out = DSP.stft(s, n, noverlap; onesided=onesided, fs=fs, window=window)
-    STFT(out, onesided ? DSP.rfftfreq(nfft, fs) : DSP.fftfreq(nfft, fs),
+    STFT(out, onesided ? rfftfreq(nfft, fs) : fftfreq(nfft, fs),
                 (n/2 : n-noverlap : (size(out,2)-1)*(n-noverlap)+n/2) / fs, n)
 end
 
