@@ -109,3 +109,4 @@ function project(Φ::Lift)
 end
 
 show_stft(m::Lift; args...) = show_stft(project(m); args...)
+show_istft(m::Lift; args...) = show_istft(project(m); args...)
