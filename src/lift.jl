@@ -107,3 +107,5 @@ function project(Φ::Lift)
     f = sum(Φ[:,:,:], dims = 3) |> x->dropdims(x, dims = 3)
     STFT( f, freq(Φ), time(Φ), width(Φ) )
 end
+
+show_stft(m::Lift; args...) = show_stft(project(m); args...)
