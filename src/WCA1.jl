@@ -1,6 +1,6 @@
 module WCA1
 
-using WAV, FFTW, OffsetArrays, Plots
+using WAV, FFTW, OffsetArrays, Plots, ProgressMeter
 
 import DSP, Statistics
 using DSP.Windows, ImageFiltering
