@@ -74,3 +74,16 @@ function istft(m::STFT)
     end
     x./=(tmp)/2
 end
+
+function show_istft(m::STFT)
+    s = istft(m)
+    max_amp = maximum( abs.(extrema(s)) )
+    T = map(x->round(x, digits = 2), range(first(time(m)), last(time(m)), length= 4))
+    A = map(x->round(x, digits = 3), range(minimum(s), maximum(s), length= 5))
+    plot(s, xaxis = ("Time (s)"), yaxis = ("Amplitude"),
+        xticks = (range(1, length(s), length= 4), T),
+        yticks = (range(-max_amp, max_amp, length= 5), range(-1, 1, length= 5)),
+        ylims = (-max_amp, max_amp),
+        label = ""
+    )
+end
