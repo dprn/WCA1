@@ -7,7 +7,7 @@ using DSP.Windows, ImageFiltering
 import FFTW: Frequencies, fftfreq, rfftfreq
 
 export stft, istft, show_stft, lift, project, wc_delay,
-	Lift, STFT, kernel_computation, freq, slopes, time, normalize
+	Lift, STFT, kernel_computation, freq, slopes, time, normalize, show_istft
 
 include("stft.jl")
 include("lift.jl")
