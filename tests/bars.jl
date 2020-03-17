@@ -2,6 +2,7 @@
 
 using ImageFiltering
 
+# We just generate an STFT container, starting from a sound
 rate = 16000.
 duration = 2
 samples = round(Int,duration*rate)
@@ -29,4 +30,31 @@ function two_bars_stft(p1, p2, km1, km2, SS::STFT; args...)
 end
 
 p0 = 1000 .*step(SS.time)/step(SS.freq)
-SS = two_bars_stft(p0/2, -2p0, 150, 100, SS)
+SS = two_bars_stft(p0/2, -p0, 150, 100, SS)
+
+@time Lm = lift(SS, threshold = 10, N=30) 
+
+mkpath("bars-results")
+cd("bars-results")
+wavwrite(istft(SS), "bars.wav", Fs = rate)
+
+KK=20
+AA=110
+BB=50
+CC=250
+
+
+τ = KK*step(time(Lm))
+@time k = kernel_computation(normalize(freq(Lm)), slopes(Lm), τ, n = 20);
+
+function test(α, β, γ)
+    W = wc_delay(Lm, α, β, γ, K=k)
+    save_result(W, α, β, γ, KK)
+end
+
+test(15,1,0)
+test(15,1,30)
+
+# for γ in 0:50:250
+#     test(100, 100, γ)
+# end
