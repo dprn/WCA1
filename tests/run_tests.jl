@@ -1,7 +1,7 @@
 using Dates, Images
 
 function save_result(m, α, β, γ, τdx; rate = 16000.) 
-	str = string(Dates.format(now(),"yyyy:mm:dd"), " at ", Dates.format(now(),"HH"),"h",Dates.format(now(),"MM")," - α=",α,", β=",β,", γ=",γ,", τdx=",τdx)
+	str = string(Dates.format(now(),"yyyy-mm-dd"), " at ", Dates.format(now(),"HH"),"h",Dates.format(now(),"MM")," - a=",α,", b=",β,", g=",γ,", tdx=",τdx)
 
 	save(string(str," - STFT.png"), show_stft(m))
 	save(string(str," - Wave.png"), show_istft(m))
