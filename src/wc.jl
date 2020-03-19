@@ -1,35 +1,36 @@
-const Kernel = Array{OffsetArrays.OffsetArray{Float64,2,Array{Float64,2}},2}
+# const Kernel = Array{OffsetArrays.OffsetArray{Float64,2,Array{Float64,2}},2}
 
-# Kolmogorov kernel
-K(t,p,q; ν = 1.) = sqrt(3)*exp(-4*(3*(p[1]-q[1])^2-3*(p[1]-q[1])*(p[2]+q[2])*t+t^2*(p[2]^2+p[2]*q[2]+q[2]^2))/t^3/ν^2)/π/t^2/ν^2
+# # Kolmogorov kernel
+# K(t,p,q; ν = 1.) = sqrt(3)*exp(-4*(3*(p[1]-q[1])^2-3*(p[1]-q[1])*(p[2]+q[2])*t+t^2*(p[2]^2+p[2]*q[2]+q[2]^2))/t^3/ν^2)/π/t^2/ν^2
 
-# Precomputation of the kernel
-function kernel_computation(freq::Union{Frequencies, FloatRange{Float64}}, slopes::FloatRange{Float64}, τ;  n::Int = 20, args...)
-    [centered([K(τ, (freq[k],slopes[l]), (freq[k] + i*step(freq),slopes[l] + j*step(slopes)); args...) for i in -n:n, j in -n:n]) 
-            for k in 1:length(freq), l in 1:length(slopes)]
-end
+# # Precomputation of the kernel
+# function kernel_computation(freq::Union{Frequencies, FloatRange{Float64}}, slopes::FloatRange{Float64}, τ;  n::Int = 20, args...)
+#     [centered([K(τ, (freq[k],slopes[l]), (freq[k] + i*step(freq),slopes[l] + j*step(slopes)); args...) for i in -n:n, j in -n:n]) 
+#             for k in 1:length(freq), l in 1:length(slopes)]
+# end
 
-# Given a precomputed kernel K and a signal a, compute the required integral
-function apply_kernel(a, K::Kernel)
-    @assert size(K) == size(a)
-    b = similar(a)
-    for k in 1:size(K,1), l in 1:size(K,2)
-        el = 0
-        KK = K[k,l]
-        for i in axes(KK,1), j in axes(KK,2)
-            el += a[ clamp(k+i, 1, size(a,1)), clamp(l+j, 1, size(a,2))]*KK[i,j]
-        end
-        b[k,l] = el
-    end
-    b
-end
+# # Given a precomputed kernel K and a signal a, compute the required integral
+# function apply_kernel(a, K::Kernel)
+#     @assert size(K) == size(a)
+#     b = similar(a)
+#     for k in 1:size(K,1), l in 1:size(K,2)
+#         el = 0
+#         KK = K[k,l]
+#         for i in axes(KK,1), j in axes(KK,2)
+#             el += a[ clamp(k+i, 1, size(a,1)), clamp(l+j, 1, size(a,2))]*KK[i,j]
+#         end
+#         b[k,l] = el
+#     end
+#     b
+# end
 
 arg(z) = atan(imag(z), real(z))
 σ(z) = exp(im*arg(z))*min(1, max(abs(z), -1))
 
 function wc_delay(input::Lift, α, β, γ; 
-        K::Union{Nothing, Kernel} = nothing, τdx = 20, 
+        K::Union{Nothing, Kern} = nothing, τdx = 20, 
         normalize_freq::Bool = true, normalize_sigmoid::Bool = true,
+        b = 1., tol = 1e-3,
         args...)
     x = time(input)
     y = normalize_freq ? normalize(freq(input)) : freq(input)
@@ -41,7 +42,9 @@ function wc_delay(input::Lift, α, β, γ;
     
     τ=τdx*step(x)
     if K == nothing 
-        K = kernel_computation( y, z, τ; args...)
+        K = Kern( y, z, KernParams(τ, b, tol))
+    elseif params(K).τ != τ
+        println("WARNING: Computed τ differs from the τ of the kernel")
     end
     
     iteration(Φt, Φt_τ, h) =  (1-α*step(x))*Φt + γ*step(x)*step(y)*step(z)*apply_kernel(σ.(Φt_τ),K) + β*step(x)*h
