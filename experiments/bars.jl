@@ -49,7 +49,10 @@ b = 4
 @time k = Kern(normalize(freq(Lm)), slopes(Lm), KernParams(τ, b, 1e-3));
 
 function test(α, β, γ)
-    @time W = wc_delay(Lm, α, β, γ, K=k)
+    @time begin
+        W = wc_delay(Lm, α, β, γ, K=k)
+        print("\n")
+    end
     save_result(W, α, β, γ, KK)
 end
 
