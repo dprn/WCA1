@@ -45,15 +45,16 @@ CC=250
 
 
 τ = KK*step(time(Lm))
-@time k = Kern(normalize(freq(Lm)), slopes(Lm), KernParams(τ, 1, 1e-3));
+b = 4
+@time k = Kern(normalize(freq(Lm)), slopes(Lm), KernParams(τ, b, 1e-3));
 
 function test(α, β, γ)
-    W = wc_delay(Lm, α, β, γ, K=k)
+    @time W = wc_delay(Lm, α, β, γ, K=k)
     save_result(W, α, β, γ, KK)
 end
 
 # test(15,1,0)
-test(18,1,18)
+test(16,1,18)
 
 cd("..")
 
