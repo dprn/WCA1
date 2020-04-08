@@ -1,4 +1,4 @@
-using Dates, Images
+using Dates
 
 function save_result(m, α, β, γ, τdx; rate = 16000.) 
 	str = string(Dates.format(now(),"yyyy-mm-dd"), " at ", Dates.format(now(),"HH"),"h",Dates.format(now(),"MM")," - a=",α,", b=",β,", g=",γ,", tdx=",τdx)
@@ -16,6 +16,10 @@ using WAV
 import Pkg
 Pkg.activate("../../WCA1")
 using WCA1
+
+# There is some kind of bug, for which we need to 
+# precompile `WCA1` before loading `Images`
+using Images
 
 # include("linear_chirp.jl")
 include("bars.jl")

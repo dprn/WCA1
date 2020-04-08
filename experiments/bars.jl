@@ -32,7 +32,7 @@ end
 p0 = 1000 .*step(SS.time)/step(SS.freq)
 SS = two_bars_stft(p0/2, -p0, 150, 100, SS)
 
-@time Lm = lift(SS, threshold = 10, N=30) 
+Lm = lift(SS, threshold = 10, N=30) 
 
 mkpath("bars-results")
 cd("bars-results")
@@ -46,7 +46,7 @@ CC=250
 
 τ = KK*step(time(Lm))
 b = 4
-@time k = Kern(normalize(freq(Lm)), slopes(Lm), KernParams(τ, b, 1e-3));
+k = Kern(normalize(freq(Lm)), slopes(Lm), KernParams(τ, b, 1e-3));
 
 function test(α, β, γ)
     @time begin
