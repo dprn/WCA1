@@ -23,7 +23,7 @@ slopes(L::Lift) = L.slopes
 
 grad(I) = imgradients(I, KernelFactors.ando3)
 
-function compute_slopes(SS; threshold = 1e-3)
+function compute_slopes(SS; threshold = 1e-3, args...)
     M = abs.(vals(SS))
     gx, gy = grad(M)
     
@@ -81,7 +81,7 @@ function compute_slope_matrix(M, N = 100)
     end
     slopeMatrix, Z
 end
-
+	
 function slopes(SS::STFT, N = 100; args...) where {T<:Real}
     G = compute_slopes(SS; args...)
     M = auto_cut(G; args...)
