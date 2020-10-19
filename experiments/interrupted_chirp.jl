@@ -1,11 +1,14 @@
+
 # Input sound
 
 rate = 16000.
 duration = 2
 samples = round(Int,duration*rate)
 
-x = [ samples/7 <= t <= 8*samples/14 ? sin(2000*2*π*t/rate+1000*t/rate*2*π*t/rate) : 0. for t in 1:samples ]
+x1 = [ samples/7 <= t <= 2.5*samples/7 ? sin(2000*2*π*t/rate+1000*t/rate*2*π*t/rate) : 0. for t in 1:samples ]
+x2= [ 3*samples/7 <= t <= 4.5*samples/7 ? sin(2000*2*π*t/rate+1000*t/rate*2*π*t/rate) : 0. for t in 1:samples ]
 
+x = x1+x2
 
 ## Short time Fourier transform
 
@@ -44,11 +47,11 @@ W = wc_delay(Lm, α, β, γ, K=k,τdx = χ) |> project
 ## Save results
 
 try
-    mkpath("linear-chirp-results")
+    mkpath("interrupted-chirp-results")
 catch
 end
 
-cd("linear-chirp-results")
+cd("interrupted-chirp-results")
 
 save_result(M, W, α, β, γ, χ)
 
