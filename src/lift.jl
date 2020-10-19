@@ -27,18 +27,17 @@ function compute_slopes(SS; threshold = 1e-3, args...)
     M = abs.(vals(SS))
     gx, gy = grad(M)
     
-#     gx = gx / step(SS.freq)
     gx = gx * length(SS.freq)
     gy = gy / step(SS.time)
     
     G = similar(M)
     for i in 1:length(M)
-        G[i] = gx[i] > threshold  ? -gy[i]/gx[i] : 0.
+        G[i] = abs(gx[i]) > threshold  ? -gy[i]/gx[i] : 0.
     end
     G
 end
 
-# Functions to cut away too small gradients
+# Functions to cut away too small gradients 
 function cut(G, σ1, σ2 = σ1) 
     M = similar(G)
     
@@ -60,36 +59,40 @@ function auto_cut(G; p = 0.95, args...)
     cut(G,Tuple(findmin(abs.(C))[2])...)
 end
 
-normalize(x) = (first(x)/last(x)):(step(x)/last(x)):1
-rng(t) = last(t) - first(t)
-zs(M, N; k = 3) = range(k*minimum(M),k*maximum(M), length = N)
 
-function compute_slope_matrix(M, N = 100)
-    Z = zs(M, N)
+normalize(x) = (first(x)/last(x)):(step(x)/last(x)):1
+
+rng(t) = last(t) - first(t)
+
+zs(M, νMin, νMax, N) = range(νMin,νMax, length = N)
+
+function compute_slope_matrix(M, νMin, νMax, N = 100; args...)
+    Z = zs(M, νMin, νMax, N)
     slopeMatrix = similar(M, Union{Int,Nothing})
     A = round.(Int,(M .- first(Z))*(N-1)/(rng(Z)) .+ 1)
     for i in 1:length(M)
         if first(Z) <= M[i] <= last(Z)
             slopeMatrix[i] = A[i]
         elseif M[i] > last(Z)
-                slopeMatrix[i] = N
+                slopeMatrix[i] = nothing#N
         elseif M[i] < first(Z)
-                    slopeMatrix[i] = 1
+                    slopeMatrix[i] = nothing#1
         else
             slopeMatrix[i] = nothing
         end
     end
     slopeMatrix, Z
 end
-	
-function slopes(SS::STFT, N = 100; args...) where {T<:Real}
+
+
+function slopes(SS::STFT, νMin, νMax, N = 100; args...) where {T<:Real}
     G = compute_slopes(SS; args...)
-    M = auto_cut(G; args...)
-    compute_slope_matrix(M, N)
+    #M = auto_cut(G; args...)                    ### Placeholder for automated slope detection
+    compute_slope_matrix(G, νMin, νMax, N)
 end
 
-function lift(m::STFT; N::Int = 100, args...)
-    slopeMatrix, Z = slopes(m, N; args...)
+function lift(m::STFT; νMin=-1, νMax=1, N::Int = 100,  args...)
+    slopeMatrix, Z = slopes(m, νMin, νMax, N; args...)
 
     imgLift = zeros(eltype(m),(size(m,1),size(m,2),N))
     for i=1:size(m,1), j=1:size(m,2)

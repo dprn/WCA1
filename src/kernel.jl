@@ -14,7 +14,7 @@ params(p::KernParams) = [p.τ, p.b, p.tol]
 
 # Explicit expression of the Kolmogorov equation kernel
 function K(t,x,y; b = 1.) 
-    g = 3*(x[1]-y[1])^2+3*(x[1]-y[1])*(x[2]+y[2])*t+t^2*(x[2]^2+x[2]*y[2]+y[2]^2)
+    g = 3*(x[1]-y[1])^2-3*(x[1]-y[1])*(x[2]+y[2])*t+t^2*(x[2]^2+x[2]*y[2]+y[2]^2)
     sqrt(3)/(2π*t^2*b)*exp(-g/(t^3*b))
 end
 K(p :: KernParams, x, y) = K(τ(p), x, y, b = b(p) )
