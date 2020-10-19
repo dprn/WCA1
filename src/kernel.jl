@@ -61,10 +61,11 @@ c(p::KernParams) = c(params(p)...)
 	threshold_idx(freqs, slopes, i, j, kernel_parameters)
 
 Returns the list of positions (as an `Array{CartesianIndex{2},1}` containing
-the indeces w.r.t. the grid `freqs x slopes`) at which the Kolmogorov kernel
+the indices w.r.t. the grid `freqs x slopes`) at which the Kolmogorov kernel
 `k(freqs[i], slopes[j], *,*)` is bigger than the tolerance.
 
 """
+#=
 function threshold_idx(f, s, i, j, p) 
     ν = s[j]
 	idxs = CartesianIndex{2}[]
@@ -80,6 +81,24 @@ function threshold_idx(f, s, i, j, p)
     
     idxs
 end
+=#
+
+function threshold_idx(f, s, i, j, p) 
+    ν = s[j]
+	idxs = CartesianIndex{2}[]
+    
+    m = floor(Int, sqrt(c(p))/step(s))
+    for k in max(-m, 1-j):min(m, length(s)-j)
+        a = max(c(p)- (k*step(s))^2 , 0 ) # to avoid rounding errors, which make a<0
+        μ_plus = τ(p)/(2*step(f))*(- 2ν - k*step(s) + sqrt(a/3) )
+        μ_minus = τ(p)/(2*step(f))*(- 2ν - k*step(s) - sqrt(a/3) )
+        C = CartesianIndex{2}[ CartesianIndex(i+ r, j+k ) for r in max( ceil(Int, μ_minus), 1-i ):min( floor(Int, μ_plus), length(f)-i)]
+        append!(idxs,C)
+    end
+    
+    idxs
+end 
+
 
 """
 	Kern(freqs, slopes, kernel_parameters)
